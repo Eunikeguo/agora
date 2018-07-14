@@ -114,7 +114,6 @@
 
                     id="tickerInput"
                     placeholder="Ticker"
-                    onChange="console.log( 'test' )"
                 >
 
                 <button id='tickerSelectButton'>Enter</button>
@@ -153,7 +152,21 @@
         
         <script>
 
-            // main button logic
+            // ------------ INPUT LOGIC -------------- //
+            var inputValue;
+
+            const inputElement = document.getElementById( 'tickerInput' );
+
+            const handleInput = () => {
+
+                inputValue = inputElement.value;
+            };
+
+            inputElement.oninput = handleInput;
+
+
+            // ------------ BUTTON LOGIC -------------- //
+
             const buttonElement = document.getElementById( 'tickerSelectButton' );
 
             const handleButtonClick = () => {
@@ -170,7 +183,8 @@
 
             buttonElement.onclick = handleButtonClick;
 
-            // helper functions
+
+            // ------------ TABLE LOGIC -------------- //
             const clearTableRows = () => {
 
                 const tableElement = document.getElementById( 'stockTable' );
@@ -187,7 +201,7 @@
                     
                     'https://www.alphavantage.co/query?' +
                     'function=TIME_SERIES_DAILY&' +
-                    'symbol=AMZN&' +
+                    `symbol=${ inputValue }&` +
                     'apikey=5YE3EPHXYKWTBA13'
                 );
 
@@ -229,16 +243,87 @@
                         date,
                         closePrice: stockData[ '4. close' ],
                         volume: stockData[ '5. volume' ],
-                        priceChange: '1.2'
+                        priceChange: calculatePriceChange({
+
+                            timeSeriesData,
+                            date,
+                            currentStockData: stockData,
+                        })
                     };
 
                     processedData.push( procesedDatum );
                 }
 
-                // console.log( 'processedData:', processedData );
+                processedData.sort( ( datumA, datumB ) => {
+
+                    const timestampA = new Date( datumA.date ).getTime();
+                    const timestampB = new Date( datumB.date ).getTime();
+
+                    return timestampA - timestampB;
+                });
 
                 return processedData;
             };
+
+            const calculatePriceChange = ({
+
+                timeSeriesData,
+                date,
+                currentStockData,
+
+            }) => {
+
+                const jsDate = new Date( date );
+
+                jsDate.setDate( jsDate.getDate() - 1 );
+
+                const previousDateString = jsDate.toISOString().split( 'T' )[0];
+
+                const previousDatum = timeSeriesData[ previousDateString ];
+
+                if( !!previousDatum ) {
+
+                    const previousClosingPrice = previousDatum[ '4. close' ];
+                    const currentClosingPrice = currentStockData[ '4. close' ];
+
+                    const priceChange = (
+
+                        ( currentClosingPrice - previousClosingPrice ) /
+                        previousClosingPrice
+
+                    ) * 100;
+
+                    return priceChange;
+                }
+
+                return 'N/A';
+            };
+
+            // const getPreviousDatumIfExist = ({
+
+            //     timeSeriesData,
+            //     date,
+
+            // }) => {
+
+            //     console.log( 'here' )
+
+            //     const jsDate = new Date( date );
+
+            //     for( let i = 1; i <= 7; i++ ) {
+
+                    // jsDate.setDate( jsDate.getDate() - i );
+
+                    // const previousDateString = jsDate.toISOString().split( 'T' )[0];
+
+                    // const previousDatum = timeSeriesData[ previousDateString ];
+
+            //         if( !!previousDatum ) {
+
+            //             return previousDatum;
+            //         }
+            //     }
+            // };
 
             const displayData = ( data ) => {
 
