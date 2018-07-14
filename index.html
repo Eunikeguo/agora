@@ -3,7 +3,7 @@
         <title>Agora</title>
 
         <!-- Screen scale settings  -->
-        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0' name='viewport' />
+        <!-- <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0' name='viewport' /> -->
         
         <link href="https://fonts.googleapis.com/css?family=Markazi+Text" rel="stylesheet">
     </head>
@@ -128,24 +128,6 @@
                         <th>Volume</th>
                         <th>% Price Change</th>
                     </tr>
-                    <tr>
-                        <td>2018-07-10</td>
-                        <td>1743.07</td>
-                        <td>3002905</td>
-                        <td>1.2</td>
-                    </tr>
-                    <tr>
-                        <td>2018-06-10</td>
-                        <td>1743.07</td>
-                        <td>3002905</td>
-                        <td>1.2</td>
-                    </tr>
-                    <tr>
-                        <td>2018-05-10</td>
-                        <td>1743.07</td>
-                        <td>3002905</td>
-                        <td>1.2</td>
-                    </tr>
                 </table>
             </div>
         </div>
@@ -153,7 +135,7 @@
         <script>
 
             // ------------ INPUT LOGIC -------------- //
-            var inputValue;
+            var inputValue = 'AMZN';
 
             const inputElement = document.getElementById( 'tickerInput' );
 
@@ -273,13 +255,12 @@
 
             }) => {
 
-                const jsDate = new Date( date );
 
-                jsDate.setDate( jsDate.getDate() - 1 );
+                const previousDatum = getPreviousDatumIfExist({
 
-                const previousDateString = jsDate.toISOString().split( 'T' )[0];
-
-                const previousDatum = timeSeriesData[ previousDateString ];
+                    date,
+                    timeSeriesData,
+                });
 
                 if( !!previousDatum ) {
 
@@ -299,31 +280,29 @@
                 return 'N/A';
             };
 
-            // const getPreviousDatumIfExist = ({
+            const getPreviousDatumIfExist = ({
 
-            //     timeSeriesData,
-            //     date,
+                timeSeriesData,
+                date,
 
-            // }) => {
+            }) => {
 
-            //     console.log( 'here' )
+                for( let i = 1; i <= 7; i++ ) {
 
-            //     const jsDate = new Date( date );
+                    const jsDate = new Date( date );
 
-            //     for( let i = 1; i <= 7; i++ ) {
+                    jsDate.setDate( jsDate.getDate() - i );
 
-                    // jsDate.setDate( jsDate.getDate() - i );
+                    const previousDateString = jsDate.toISOString().split( 'T' )[0];
 
-                    // const previousDateString = jsDate.toISOString().split( 'T' )[0];
+                    const previousDatum = timeSeriesData[ previousDateString ];
 
-                    // const previousDatum = timeSeriesData[ previousDateString ];
+                    if( !!previousDatum ) {
 
-            //         if( !!previousDatum ) {
-
-            //             return previousDatum;
-            //         }
-            //     }
-            // };
+                        return previousDatum;
+                    }
+                }
+            };
 
             const displayData = ( data ) => {
 
