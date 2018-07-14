@@ -1,0 +1,22 @@
+{
+  "name": "agora",
+  "version": "1.0.0",
+  "description": "Stock price checker",
+  "main": "alpha_stock.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eunikeguo/agora.git"
+  },
+  "author": "Eunike Guo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Eunikeguo/agora/issues"
+  },
+  "homepage": "https://github.com/Eunikeguo/agora#readme",
+  "dependencies": {
+    "request": "^2.87.0"
+  }
+}

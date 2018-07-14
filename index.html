@@ -1,0 +1,276 @@
+<html>
+    <head>
+        <title>Agora</title>
+
+        <!-- Screen scale settings  -->
+        <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0' name='viewport' />
+        
+        <link href="https://fonts.googleapis.com/css?family=Markazi+Text" rel="stylesheet">
+    </head>
+
+    <style>
+        
+        #outer_div {
+
+            width: 100%;
+            /* height: 100%; */
+            /* background: green; */
+
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-flow: column;
+
+            font-family: 'Markazi Text', serif;
+        }
+
+        #agoraTitle {
+
+            order: 1;
+        }
+
+        #tickerDiv {
+
+            order: 2;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-flow: row;
+        }
+
+        #tickerInput {
+
+            order: 1;
+
+            width: 200px;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        #tickerSelectButton {
+
+            order: 2;
+
+            border: none;
+            background-color: green;
+            color: white;
+            padding: 7px 26px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 13px;
+            border-radius: 6px;
+        }
+
+        #tableDiv {
+
+            order: 3;
+            margin-top: 20px;
+            max-width: 900px;
+            min-width: 300px;
+            width: 80%;
+            /* height: 500px; */
+            border-radius: 7px;
+            background-color: #80F9F9;
+        }
+
+
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        th {
+
+            background-color: #8DAEFA;
+        }
+
+        td, th {
+            border: 1px solid #F5FFFF;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #F5FFFF;
+        }
+
+    </style>
+
+    <body>
+        <div id="outer_div">
+
+            <h1 id="agoraTitle">Agora</h1>
+
+            <div id="tickerDiv">
+                <input
+
+                    id="tickerInput"
+                    placeholder="Ticker"
+                    onChange="console.log( 'test' )"
+                >
+
+                <button id='tickerSelectButton'>Enter</button>
+            </div>
+
+            <div id="tableDiv">
+
+                <table id='stockTable'>
+                    <tr id='stockTableHeaderRow'>
+                        <th>Date</th>
+                        <th>Close Price</th>
+                        <th>Volume</th>
+                        <th>% Price Change</th>
+                    </tr>
+                    <tr>
+                        <td>2018-07-10</td>
+                        <td>1743.07</td>
+                        <td>3002905</td>
+                        <td>1.2</td>
+                    </tr>
+                    <tr>
+                        <td>2018-06-10</td>
+                        <td>1743.07</td>
+                        <td>3002905</td>
+                        <td>1.2</td>
+                    </tr>
+                    <tr>
+                        <td>2018-05-10</td>
+                        <td>1743.07</td>
+                        <td>3002905</td>
+                        <td>1.2</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <script>
+
+            // main button logic
+            const buttonElement = document.getElementById( 'tickerSelectButton' );
+
+            const handleButtonClick = () => {
+
+                clearTableRows();
+
+                return getData().then( data => {
+
+                    const processedData = getProcessedData( data );
+
+                    displayData( processedData );
+                });
+            }
+
+            buttonElement.onclick = handleButtonClick;
+
+            // helper functions
+            const clearTableRows = () => {
+
+                const tableElement = document.getElementById( 'stockTable' );
+
+                while( tableElement.rows.length > 1 ) {
+
+                    tableElement.deleteRow( 1 );
+                }
+            };
+
+            const getData = () => {
+
+                const url = (
+                    
+                    'https://www.alphavantage.co/query?' +
+                    'function=TIME_SERIES_DAILY&' +
+                    'symbol=AMZN&' +
+                    'apikey=5YE3EPHXYKWTBA13'
+                );
+
+                const options = {
+                    
+                    method: 'GET',
+                    headers: {
+                        
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors',
+                    cache: 'default'
+                };
+
+                const request = new Request( url, options );
+
+                return fetch( request ).then( response => {
+
+                    return response.json();
+                    
+                }).then( json => {
+
+                    return json;
+                });
+            };
+
+            const getProcessedData = ( data ) => {
+
+                const processedData = [];
+
+                const timeSeriesData = data[ 'Time Series (Daily)' ];
+
+                for( const date in timeSeriesData ) {
+
+                    const stockData = timeSeriesData[ date ];
+
+                    const procesedDatum = {
+
+                        date,
+                        closePrice: stockData[ '4. close' ],
+                        volume: stockData[ '5. volume' ],
+                        priceChange: '1.2'
+                    };
+
+                    processedData.push( procesedDatum );
+                }
+
+                // console.log( 'processedData:', processedData );
+
+                return processedData;
+            };
+
+            const displayData = ( data ) => {
+
+                for( const datum of data ) {
+
+                    addRowToTable( datum );
+                }
+            };
+
+            const addRowToTable = ({
+
+                date,
+                closePrice,
+                volume,
+                priceChange
+
+            }) => {
+
+                const tableElement = document.getElementById( 'stockTable' );
+
+                const row = tableElement.insertRow(1);
+
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                const cell3 = row.insertCell(2);
+                const cell4 = row.insertCell(3);
+
+                cell1.innerHTML = date;
+                cell2.innerHTML = closePrice;
+                cell3.innerHTML = volume;
+                cell4.innerHTML = priceChange;
+            };
+        </script>
+    </body>
+</html>
